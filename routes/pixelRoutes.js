@@ -1,5 +1,5 @@
 import express from "express";
-import crypto from "crypto";
+import { nanoid } from "nanoid";
 import EmailEvent from "../models/EmailEvent.js";
 import fs from "fs";
 import path from "path";
@@ -9,7 +9,7 @@ const router = express.Router();
 // Create pixel ID
 router.post("/create-pixel", async (req, res) => {
     try {
-        const id = crypto.randomUUID();
+        const id = nanoid();
         const { username } = req.body;
 
         await EmailEvent.create({
