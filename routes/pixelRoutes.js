@@ -47,5 +47,11 @@ router.get("/track/:id.png", async (req, res) => {
     }
 });
 
+router.get("/all", (req, res) => {
+    const emails=EmailEvent.find({});
+    res.json(emails);
+}
+);
+
 export default router;
  
