@@ -27,19 +27,31 @@ router.post("/create-pixel", async (req, res) => {
 
 router.get("/track/:id.png", async (req, res) => {
     try {
-        const id = req.params.id;
+        const { id } = req.params;
 
+        console.log("📩 Pixel requested:", id);
+        console.log("User-Agent:", req.headers["user-agent"]);
+
+        // Update status ON FIRST HIT
         await EmailEvent.findOneAndUpdate(
             { id },
-            { opened: true, openedAt: new Date() }
+            {
+                opened: true,
+                openedAt: new Date()
+            }
         );
 
-        // Return transparent 1x1 PNG
+        // IMPORTANT: Disable caching
+        res.set({
+            "Content-Type": "image/png",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        });
+
         const pixelPath = path.resolve("pixel.png");
         const pixel = fs.readFileSync(pixelPath);
 
-        res.set("Content-Type", "image/png");
-        res.set("Content-Length", pixel.length);
         return res.end(pixel);
     } catch (err) {
         console.error("Pixel tracking error:", err);
@@ -47,8 +59,10 @@ router.get("/track/:id.png", async (req, res) => {
     }
 });
 
+
 router.get("/all", (req, res) => {
     const emails=EmailEvent.find({});
+    comsole.log(emails);
     res.json(emails);
 }
 );
