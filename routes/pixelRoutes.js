@@ -32,16 +32,18 @@ router.get("/track/:id.png", async (req, res) => {
         console.log("📩 Pixel requested:", id);
         console.log("User-Agent:", req.headers["user-agent"]);
 
-        // Update status ON FIRST HIT
-        await EmailEvent.findOneAndUpdate(
+        const updated = await EmailEvent.findOneAndUpdate(
             { id },
-            {
-                opened: true,
-                openedAt: new Date()
-            }
+            { opened: true, openedAt: new Date() },
+            { new: true }
         );
 
-        // IMPORTANT: Disable caching
+        if (!updated) {
+            console.warn("⚠️ No EmailEvent found for id:", id);
+        } else {
+            console.log("✅ Email marked as opened:", id);
+        }
+
         res.set({
             "Content-Type": "image/png",
             "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -58,6 +60,7 @@ router.get("/track/:id.png", async (req, res) => {
         res.status(500).end();
     }
 });
+
 
 
 router.get("/all", (req, res) => {
